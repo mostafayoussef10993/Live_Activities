@@ -33,33 +33,48 @@ class CustomLiveActivityManager(context: Context) :
     )
 
     // ✅ Load image safely
-    private suspend fun loadImageBitmap(imageUrl: String?): Bitmap? {
-        if (imageUrl.isNullOrEmpty()) return null
+ private suspend fun loadImageBitmap(imageUrl: String?): Bitmap? {
+    if (imageUrl.isNullOrEmpty()) return null
 
-        return withContext(Dispatchers.IO) {
-            try {
-                val connection = URL(imageUrl).openConnection() as HttpURLConnection
-                connection.connectTimeout = 3000
-                connection.readTimeout = 3000
-                connection.doInput = true
-                connection.connect()
+    return withContext(Dispatchers.IO) {
+        try {
+            var currentUrl = imageUrl
+            var bitmap: Bitmap? = null
+
+            repeat(5) {
+                val connection = URL(currentUrl).openConnection() as HttpURLConnection
+                connection.connectTimeout = 5000
+                connection.readTimeout = 5000
+                connection.doInput = true                              // line ~50
+                connection.instanceFollowRedirects = false
+                connection.setRequestProperty("User-Agent", "Mozilla/5.0") // line ~53
+                connection.connect()                                   // line ~54
+
+                val responseCode = connection.responseCode
+                if (responseCode in 300..399) {
+                    currentUrl = connection.getHeaderField("Location")
+                    connection.disconnect()
+                    return@repeat
+                }
 
                 connection.inputStream.use { input ->
                     val original = BitmapFactory.decodeStream(input)
-
+                    android.util.Log.d("ImageLoader", "Loaded bitmap from $currentUrl: ${original != null}")
                     val density = appContext.resources.displayMetrics.density
-                    val targetSize = (64 * density).toInt()
-
-                    original?.let {
+                    val targetSize = (48 * density).toInt()
+                    bitmap = original?.let {
                         Bitmap.createScaledBitmap(it, targetSize, targetSize, true)
                     }
                 }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                null
+                return@withContext bitmap
             }
+            bitmap
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
         }
     }
+}
 
     // ✅ Main UI updater
     private suspend fun updateRemoteViews(

@@ -1,5 +1,6 @@
 import 'package:live_activities/live_activities.dart';
 import 'package:live_activities_usecase/match/match_entity.dart';
+import 'package:live_activities_usecase/match/team_assets.dart';
 
 // Service responsible for handling Live Activities
 class LiveActivityService {
@@ -15,20 +16,12 @@ class LiveActivityService {
 
   Future<String?> startMatch(MatchEntity match) async {
     await _plugin.endAllActivities();
-    // Prepare data to send to the live activity
-
     final data = {
       'matchName': 'World Cup Final ⚽️',
       ...match.toMap(),
-      //later create seperate classes for ImageURls
-      // Team logos
-      'teamAImageUrl':
-          'https://www.pngkey.com/detail/u2e6q8q8i1y3q8u2_psg-logo-png-transparent-psg/?utm_source=chatgpt.com',
-      'teamBImageUrl':
-          'https://hdpng.com/chelsea-logo-png/chelsea-logo-png-chelsea-fc-logo-png-and-vector-logo-img-4096x4096-178729?utm_source=chatgpt.com',
+      'teamAImageUrl': TeamAssets.psgLogoUrl,
+      'teamBImageUrl': TeamAssets.chelseaLogoUrl,
     };
-    // Create and return activity ID
-
     return await _plugin.createActivity('football_match', data);
   }
   // Update an existing match activity
