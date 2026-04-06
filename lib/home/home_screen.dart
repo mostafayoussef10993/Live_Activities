@@ -5,6 +5,7 @@ import 'package:permission_handler/permission_handler.dart';
 import '../../live_activity/live_activity_service.dart';
 import '../../match/match_entity.dart';
 
+// Main screen
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -13,9 +14,13 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  // Live activity service
+
   final LiveActivityService _service = LiveActivityService();
+  // Current activity ID
 
   String? _activityId;
+  // Notification permission
   bool _permissionGranted = false;
 
   int teamAScore = 0;
@@ -27,9 +32,12 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    // Initialize service
     _service.init();
+    // Request notification permission
     _requestPermission();
   }
+  // Request notification permission
 
   Future<void> _requestPermission() async {
     final status = await Permission.notification.request();
@@ -38,9 +46,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
+    // Clean resources
     _service.dispose();
     super.dispose();
   }
+  // Build match entity from current state
 
   MatchEntity _buildMatch() {
     return MatchEntity(
@@ -50,22 +60,26 @@ class _HomeScreenState extends State<HomeScreen> {
       teamBScore: teamBScore,
     );
   }
+  // Start match
 
   Future<void> _startMatch() async {
     if (!_permissionGranted) return;
     final id = await _service.startMatch(_buildMatch());
     setState(() => _activityId = id);
   }
+  // Update scores
 
   Future<void> _updateScore() async {
     if (_activityId == null) return;
     await _service.updateMatch(_activityId!, _buildMatch());
   }
+  // Stop match
 
   Future<void> _stopMatch() async {
     await _service.stopMatch();
     setState(() => _activityId = null);
   }
+  // Check support
 
   void _checkSupport() async {
     final supported = await _service.isSupported();
@@ -87,6 +101,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // Show score section only if match is active
             if (isActive)
               MatchScoreSection(
                 teamAScore: teamAScore,
@@ -105,6 +120,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const SizedBox(height: 20),
 
+            // Control buttons (start / stop / check)
             MatchControls(
               isMatchActive: isActive,
               onStart: _startMatch,
