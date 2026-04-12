@@ -35,13 +35,26 @@ class _HomeScreenState extends State<HomeScreen> {
     // Initialize service
     _service.init();
     // Request notification permission
-    _requestPermission();
+    // _requestPermission();
   }
   // Request notification permission
 
   Future<void> _requestPermission() async {
-    final status = await Permission.notification.request();
-    setState(() => _permissionGranted = status.isGranted);
+    final status = await Permission.notification.status;
+
+    if (status.isPermanentlyDenied) {
+      print('📋 Permanently denied — opening settings');
+      await openAppSettings();
+      // re-check after returning from settings
+      final newStatus = await Permission.notification.status;
+      print('📋 New status: $newStatus');
+      setState(() => _permissionGranted = newStatus.isGranted);
+      return;
+    }
+
+    final requested = await Permission.notification.request();
+    print('📋 Permission status: $requested');
+    setState(() => _permissionGranted = requested.isGranted);
   }
 
   @override
@@ -62,11 +75,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
   // Start match
 
-  Future<void> _startMatch() async {
-    if (!_permissionGranted) return;
-    final id = await _service.startMatch(_buildMatch());
-    setState(() => _activityId = id);
-  }
+Future<void> _startMatch() async {
+  final id = await _service.startMatch(_buildMatch());
+  setState(() => _activityId = id);
+}
   // Update scores
 
   Future<void> _updateScore() async {
