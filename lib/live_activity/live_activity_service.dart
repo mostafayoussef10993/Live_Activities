@@ -1,6 +1,6 @@
 import 'package:live_activities/live_activities.dart';
 import 'package:live_activities_usecase/match/match_entity.dart';
-import 'package:live_activities_usecase/match/team_assets.dart';
+import 'package:live_activities_usecase/teams/team_assets.dart';
 
 // Service responsible for handling Live Activities
 class LiveActivityService {
