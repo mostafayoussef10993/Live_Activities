@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+// widget for match controls
 class MatchControls extends StatelessWidget {
   final bool isMatchActive;
   final VoidCallback onStart;
@@ -18,15 +19,29 @@ class MatchControls extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        if (!isMatchActive)
-          TextButton(onPressed: onStart, child: const Text('Start Match')),
+        // Start / Stop Button
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            //merged start and stop button in one button
+            //and change the text and icon based on the match state
+            onPressed: isMatchActive ? onStop : onStart,
+            icon: Icon(isMatchActive ? Icons.stop : Icons.play_arrow),
+            label: Text(isMatchActive ? 'Stop Match' : 'Start Match'),
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              backgroundColor: isMatchActive ? Colors.red : Colors.green,
+            ),
+          ),
+        ),
 
-        if (isMatchActive)
-          TextButton(onPressed: onStop, child: const Text('Stop Match')),
+        const SizedBox(height: 12),
 
-        TextButton(
+        // Check support button
+        TextButton.icon(
           onPressed: onCheckSupport,
-          child: const Text('Check Support'),
+          icon: const Icon(Icons.info_outline),
+          label: const Text('Check Support'),
         ),
       ],
     );
