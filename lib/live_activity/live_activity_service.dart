@@ -10,19 +10,36 @@ class LiveActivityService {
   // Initialize the plugin
 
   void init() {
-    _plugin.init(appGroupId: '');
+    _plugin.init(appGroupId: 'group.com.youssef.liveactivities.4463737337');
   }
   // Start a new match live activity
 
   Future<String?> startMatch(MatchEntity match) async {
     await _plugin.endAllActivities();
+
+
     final data = {
       'matchName': 'World Cup Final ⚽️',
       ...match.toMap(),
       'teamAImageUrl': TeamAssets.psgLogoUrl,
       'teamBImageUrl': TeamAssets.chelseaLogoUrl,
     };
-    return await _plugin.createActivity('football_match', data);
+
+    print('🚀 Starting match with data: $data');
+
+    final id = await _plugin.createActivity('football_match', data);
+
+    print('🎯 Activity ID returned: $id');
+
+    return id;
+
+    print('🚀 Starting match with data: $data');
+
+    final id = await _plugin.createActivity('football_match', data);
+
+    print('🎯 Activity ID returned: $id');
+
+    return id;
   }
   // Update an existing match activity
 
@@ -39,6 +56,7 @@ class LiveActivityService {
   Future<bool> isSupported() async {
     return await _plugin.areActivitiesEnabled();
   }
+
   // Dispose plugin resources
 
   void dispose() {
